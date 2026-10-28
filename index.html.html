@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taxi Service in Jalandhar, Punjab | Outstation Cab Booking</title>
+<meta name="description" content="Book an outstation taxi from Jalandhar to Delhi, Amritsar and Chandigarh. Compare Sedan, Ertiga, Kia Carens and Innova Crysta fares and enquire directly.">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+</head>
+<body class="bg-[#F7F7F2] text-[#111111] antialiased scroll-smooth font-sans" style="background:#F7F7F2">
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+/* ===== EDIT YOUR DETAILS HERE ===== */
+const BIZ = {
+  brand: "[YOUR TAXI BRAND]",
+  owner: "Sarvjit Singh",
+  phone: "+91 9876430665",
+  tel: "+919876430665",
+  wa: "919876430665",
+  email: "sarvjitsj13@gmail.com",
+  years: 25,
+  place: "Jalandhar, Punjab, India",
+  sheetUrl: "https://script.google.com/macros/s/AKfycbzXwGqnIOlUJ-vQ---KgqpfjhYdI-8RoFwKxJGawvuj7oAQpu7xBxJsXYhmODuYdcEFwQ/exec", // paste your Google Apps Script Web App URL here
+};
+const VEHICLES = [
+  { id: "Sedan", seats: "", desc: "A comfortable choice for small groups and couples travelling outstation.", img: "/images/fleet/sedan.webp" },
+  { id: "Maruti Suzuki Ertiga", seats: "", desc: "A roomier option for families and small groups with extra luggage.", img: "/images/fleet/ertiga.webp" },
+  { id: "Kia Carens", seats: "6+1 seater", desc: "A spacious ride for family trips and longer journeys.", img: "/images/fleet/kia-carens.webp" },
+  { id: "Toyota Innova Crysta", seats: "6+1 seater", desc: "A premium, comfortable ride for long outstation journeys.", img: "/images/fleet/innova-crysta.webp" },
+];
+// One-way fares in ₹
+const ROUTES = [
+  { to: "Delhi", desc: "Outstation taxi from Jalandhar to Delhi.", fares: { "Sedan": 5500, "Maruti Suzuki Ertiga": 7000, "Kia Carens": 7000, "Toyota Innova Crysta": 8500 } },
+  { to: "Amritsar", desc: "Outstation taxi from Jalandhar to Amritsar.", fares: { "Sedan": 1800, "Maruti Suzuki Ertiga": 2500, "Kia Carens": 2500, "Toyota Innova Crysta": 3500 } },
+  { to: "Chandigarh", desc: "Outstation taxi from Jalandhar to Chandigarh.", fares: { "Sedan": 2500, "Maruti Suzuki Ertiga": 3000, "Kia Carens": 3000, "Toyota Innova Crysta": 3500 } },
+];
+const getFare = (to, v) => { const r = ROUTES.find(x => x.to === to); return r && r.fares[v] ? r.fares[v] : null; };
+const rs = n => "₹" + n.toLocaleString("en-IN");
+const fareText = (to, v) => { const f = getFare(to, v); return f ? rs(f) : "Contact for fare"; };
+const NAV = [["Home", "#home"], ["Our Routes", "#routes"], ["Our Fleet", "#fleet"], ["About Us", "#about"], ["Contact", "#contact"]];
+const FAQ = [
+  ["How can I book a taxi from Jalandhar?", "Fill in the enquiry form, call, or message on WhatsApp. This creates an enquiry, not a confirmed booking."],
+  ...ROUTES.map(r => [`What is the taxi fare from Jalandhar to ${r.to}?`, `One-way fares: ` + Object.entries(r.fares).map(([k, v]) => `${k} ${rs(v)}`).join(", ") + ". Fares are indicative; please confirm the final fare and trip terms before booking."]),
+  ["Which vehicles can I enquire about?", "Sedan, Maruti Suzuki Ertiga, Kia Carens and Toyota Innova Crysta."],
+  ["Can I request a different destination?", "Yes, choose “Other destination” in the form and enquire. The fare will be shared on contact."],
+  ["How do I contact " + BIZ.owner + "?", `Call ${BIZ.phone} or email ${BIZ.email}.`],
+];
+
+const Icon = ({ d, className = "w-5 h-5" }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
+);
+const CarIcon = p => <Icon {...p} d={<><path d="M5 17H3v-5l2-5h14l2 5v5h-2" /><circle cx="7.5" cy="17" r="2" /><circle cx="16.5" cy="17" r="2" /><path d="M3 12h18" /></>} />;
+const PhoneIcon = p => <Icon {...p} d={<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.800.7a2 2 0 0 1 1.700 2z" />} />;
+const MailIcon = p => <Icon {...p} d={<><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></>} />;
+const PinIcon = p => <Icon {...p} d={<><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></>} />;
+const LockIcon = p => <Icon {...p} d={<><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>} />;
+const ImgIcon = p => <Icon {...p} d={<><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></>} />;
+const CheckIcon = p => <Icon {...p} d={<path d="M20 6 9 17l-5-5" />} />;
+
+// Image with yellow placeholder fallback
+const Pic = ({ src, alt, label, className = "" }) => {
+  const [bad, setBad] = useState(false);
+  return bad ? (
+    <div role="img" aria-label={alt} className={`flex flex-col items-center justify-center gap-2 bg-[#FFD400] text-[#111111] border-b-4 border-[#111111] ${className}`}>
+      <ImgIcon className="w-10 h-10" /><span className="text-xs font-bold uppercase tracking-wide text-center px-2">{label}</span>
+    </div>
+  ) : <img src={src} alt={alt} loading="lazy" onError={() => setBad(true)} className={`object-cover ${className}`} />;
+};
+
+const btnY = "inline-flex items-center justify-center gap-2 bg-[#FFD400] text-[#111111] font-extrabold border-2 border-[#111111] px-5 py-3 shadow-[4px_4px_0_#111111] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-[#111111]";
+const btnW = "inline-flex items-center justify-center gap-2 bg-white text-[#111111] font-extrabold border-2 border-[#111111] px-5 py-3 shadow-[4px_4px_0_#FFD400] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFD400]";
+
+const Logo = ({ light }) => (
+  <a href="#home" className="flex items-center gap-2 font-extrabold text-lg">
+    <span className="bg-[#FFD400] text-[#111111] p-1.5 border-2 border-[#111111]"><CarIcon /></span>
+    <span className={light ? "text-white" : "text-[#111111]"}>{BIZ.brand}</span>
+  </a>
+);
+
+function Navbar() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="sticky top-0 z-50 bg-white border-b-4 border-[#111111]">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Logo />
+        <nav aria-label="Main" className="hidden md:flex items-center gap-6 font-bold">
+          {NAV.map(([l, h]) => <a key={h} href={h} className="hover:underline underline-offset-4 decoration-4 decoration-[#FFD400]">{l}</a>)}
+          <a href="#book" className={btnY + " !py-2"}>Book a Taxi</a>
+        </nav>
+        <button className="md:hidden p-2 border-2 border-[#111111] bg-[#FFD400]" aria-expanded={open} aria-label="Toggle menu" onClick={() => setOpen(!open)}>
+          <Icon d={open ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 6h18M3 12h18M3 18h18" />} />
+        </button>
+      </div>
+      {open && (
+        <nav aria-label="Mobile" className="md:hidden border-t-2 border-[#111111] bg-white px-4 py-3 flex flex-col gap-1 font-bold">
+          {NAV.map(([l, h]) => <a key={h} href={h} onClick={() => setOpen(false)} className="py-3 border-b border-gray-200">{l}</a>)}
+          <a href="#book" onClick={() => setOpen(false)} className={btnY + " mt-2"}>Book a Taxi</a>
+        </nav>
+      )}
+    </header>
+  );
+}
+
+function Hero() {
+  return (
+    <section id="home" className="bg-[#111111] text-white border-b-4 border-[#FFD400]">
+      <div className="max-w-6xl mx-auto px-4 py-12 md:py-20 grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <p className="inline-block bg-[#FFD400] text-[#111111] font-bold text-xs px-3 py-1 mb-4 uppercase">Taxi service · {BIZ.place}</p>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">Your Journey. <span className="text-[#FFD400]">Our Priority.</span></h1>
+          <p className="mt-4 text-gray-300 text-base sm:text-lg">Reliable outstation taxi services from Jalandhar to Delhi, Amritsar, Chandigarh and beyond. Comfortable rides, transparent fares, and easy booking.</p>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <a href="#book" className={btnY}>Book Your Ride</a>
+            <a href="#routes" className={btnW}>Explore Our Routes</a>
+          </div>
+        </div>
+        <Pic src="/images/hero-1.webp" alt="Taxi on the road near Jalandhar" label="Add hero photo: /images/hero-1.webp" className="w-full aspect-[4/3] border-4 border-[#FFD400]" />
+      </div>
+    </section>
+  );
+}
+
+const field = "w-full border-2 border-[#111111] bg-white px-3 py-3 text-base focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFD400]";
+const Label = ({ id, children }) => <label htmlFor={id} className="block font-bold text-sm mb-1">{children}</label>;
+const Err = ({ m }) => m ? <p className="text-red-700 text-sm font-semibold mt-1" role="alert">{m}</p> : null;
+
+function BookingForm({ f, setF }) {
+  const [errs, setErrs] = useState({});
+  const [done, setDone] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [fail, setFail] = useState(false);
+  const set = (k, v) => setF({ ...f, [k]: v });
+  const dest = f.to === "Other" ? (f.other || "Other destination") : f.to;
+  const fare = getFare(f.to, f.vehicle);
+  const today = new Date().toISOString().split("T")[0];
+
+  const submit = async e => {
+    e.preventDefault();
+    const er = {};
+    if (!f.name.trim()) er.name = "Please enter your name.";
+    if (!/^[6-9]\d{9}$/.test(f.phone.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, ""))) er.phone = "Enter a valid 10-digit Indian mobile number.";
+    if (!f.date) er.date = "Please choose a travel date.";
+    else if (f.date < today) er.date = "Date cannot be in the past.";
+    if (f.to === "Other" && !f.other.trim()) er.other = "Please enter your destination.";
+    setErrs(er);
+    if (Object.keys(er).length) return;
+    const msg = [
+      "Taxi enquiry",
+      `Name: ${f.name}`, `Mobile: +91 ${f.phone.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, "")}`,
+      `Pickup: ${BIZ.place}`, `Drop: ${dest}`, `Date: ${f.date}`, `Vehicle: ${f.vehicle}`,
+      `Passengers: ${f.pax}`, `Displayed fare: ${fareText(f.to, f.vehicle)}`,
+      f.msg ? `Notes: ${f.msg}` : "",
+    ].filter(Boolean).join("\n");
+    if (!BIZ.sheetUrl) {
+      window.open(`https://wa.me/${BIZ.wa}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+      setDone("wa");
+      return;
+    }
+    setBusy(true); setFail(false);
+    try {
+      const clean = f.phone.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, "");
+      const res = await fetch(BIZ.sheetUrl, { method: "POST", body: JSON.stringify({ name: f.name, phone: "+91 " + clean, drop: dest, date: f.date, vehicle: f.vehicle, pax: f.pax, fare: fareText(f.to, f.vehicle), msg: f.msg }) });
+      const j = await res.json();
+      if (!j.ok) throw new Error("save failed");
+      setDone(j.id);
+      setF({ ...f, name: "", phone: "", msg: "", date: "" });
+    } catch (err) { setFail(true); }
+    setBusy(false);
+  };
+
+  return (
+    <section id="book" className="px-4 py-12 bg-[#FFD400] border-b-4 border-[#111111]">
+      <div className="max-w-3xl mx-auto bg-white border-4 border-[#111111] shadow-[8px_8px_0_#111111] p-5 sm:p-8">
+        <h2 className="text-3xl font-black">Taxi Enquiry</h2>
+        <p className="text-sm text-[#6B7280] mt-1">Send your details on WhatsApp and we’ll contact you. This is an enquiry, not a confirmed booking.</p>
+        <form onSubmit={submit} noValidate className="mt-6 grid sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <Label id="pickup">Pickup location</Label>
+            <div className="flex items-center gap-2 border-2 border-[#111111] bg-[#F7F7F2] px-3 py-3 font-bold">
+              <PinIcon className="w-5 h-5 shrink-0" /><span id="pickup" className="flex-1">{BIZ.place}</span><LockIcon className="w-4 h-4 text-[#6B7280]" />
+            </div>
+          </div>
+          <div>
+            <Label id="to">Drop-off destination</Label>
+            <select id="to" className={field} value={f.to} onChange={e => set("to", e.target.value)}>
+              {ROUTES.map(r => <option key={r.to}>{r.to}</option>)}<option value="Other">Other destination</option>
+            </select>
+          </div>
+          {f.to === "Other" ? (
+            <div><Label id="other">Your destination</Label><input id="other" className={field} value={f.other} onChange={e => set("other", e.target.value)} /><Err m={errs.other} /></div>
+          ) : (
+            <div>
+              <Label id="date0">Travel date</Label>
+              <input id="date0" type="date" min={today} className={field} value={f.date} onChange={e => set("date", e.target.value)} /><Err m={errs.date} />
+            </div>
+          )}
+          {f.to === "Other" && (
+            <div className="sm:col-span-2">
+              <Label id="date1">Travel date</Label>
+              <input id="date1" type="date" min={today} className={field} value={f.date} onChange={e => set("date", e.target.value)} /><Err m={errs.date} />
+            </div>
+          )}
+          <div>
+            <Label id="veh">Vehicle type</Label>
+            <select id="veh" className={field} value={f.vehicle} onChange={e => set("vehicle", e.target.value)}>
+              {VEHICLES.map(v => <option key={v.id} value={v.id}>{v.id}{v.seats ? ` (${v.seats})` : ""}</option>)}
+            </select>
+          </div>
+          <div>
+            <Label id="pax">Passengers</Label>
+            <input id="pax" type="number" min="1" max="10" className={field} value={f.pax} onChange={e => set("pax", e.target.value)} />
+          </div>
+          <div>
+            <Label id="name">Your name</Label>
+            <input id="name" autoComplete="name" className={field} value={f.name} onChange={e => set("name", e.target.value)} /><Err m={errs.name} />
+          </div>
+          <div>
+            <Label id="phone">Mobile number</Label>
+            <div className="flex">
+              <span className="border-2 border-r-0 border-[#111111] bg-[#F7F7F2] px-3 flex items-center font-bold">+91</span>
+              <input id="phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="98765 43210" className={field} value={f.phone} onChange={e => set("phone", e.target.value)} />
+            </div>
+            <Err m={errs.phone} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label id="msg">Message (optional)</Label>
+            <textarea id="msg" rows="3" className={field} value={f.msg} onChange={e => set("msg", e.target.value)} />
+          </div>
+          <div className="sm:col-span-2 bg-[#111111] text-white p-4 flex items-center justify-between">
+            <span className="text-sm">Displayed fare (one-way, indicative)</span>
+            <span className="text-2xl font-black text-[#FFD400]">{fareText(f.to, f.vehicle)}</span>
+          </div>
+          {fail && <p className="sm:col-span-2 text-red-700 font-bold" role="alert">Sorry, we couldn’t save your enquiry. Please try again or call {BIZ.phone}.</p>}
+          <button type="submit" disabled={busy} className={btnY + " sm:col-span-2 text-lg disabled:opacity-60"}>{busy ? "Sending..." : "Enquire Now"}</button>
+          {done && <p className="sm:col-span-2 flex items-start gap-2 font-bold bg-[#F7F7F2] border-2 border-[#111111] p-3" role="status"><CheckIcon className="w-5 h-5 shrink-0 mt-0.5" />{done === "wa" ? "WhatsApp has opened with your details. Your enquiry reaches us once you press send there." : `Enquiry saved. Reference: ${done}. This is an enquiry, not a confirmed booking.`}</p>}
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function Routes({ pick }) {
+  return (
+    <section id="routes" className="max-w-6xl mx-auto px-4 py-14">
+      <h2 className="text-3xl sm:text-4xl font-black">Popular Taxi Routes</h2>
+      <p className="mt-2 text-[#6B7280]">One-way fares from Jalandhar.</p>
+      <div className="mt-8 grid md:grid-cols-3 gap-6">
+        {ROUTES.map(r => (
+          <article key={r.to} className="bg-white border-4 border-[#111111] shadow-[6px_6px_0_#111111] flex flex-col">
+            <Pic src={`/images/routes/${r.to.toLowerCase()}.webp`} alt={`Route from Jalandhar to ${r.to}`} label={`Add photo: /images/routes/${r.to.toLowerCase()}.webp`} className="w-full aspect-video" />
+            <div className="p-5 flex flex-col flex-1">
+              <h3 className="text-2xl font-black">Jalandhar → {r.to}</h3>
+              <p className="text-sm text-[#6B7280] mt-1">{r.desc}</p>
+              <ul className="mt-4 divide-y divide-gray-200 flex-1">
+                {VEHICLES.map(v => (
+                  <li key={v.id}>
+                    <button onClick={() => pick(r.to, v.id)} className="w-full flex items-center justify-between py-2.5 text-left hover:bg-[#FFD400]/30 px-1">
+                      <span className="text-sm font-semibold">{v.id}{v.seats ? <span className="text-[#6B7280] font-normal"> ({v.seats})</span> : null}</span>
+                      <span className="font-black">{rs(r.fares[v.id])}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={() => pick(r.to, "Sedan")} className={btnY + " mt-5"}>Book This Route</button>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p className="mt-6 text-sm text-[#6B7280]">Fares are indicative. Please confirm the final fare and trip terms (tolls, parking, waiting, taxes, return trip) before booking.</p>
+    </section>
+  );
+}
+
+function Fleet({ pick }) {
+  return (
+    <section id="fleet" className="bg-[#111111] text-white py-14 border-y-4 border-[#FFD400]">
+      <div className="max-w-6xl mx-auto px-4">
+        <h2 className="text-3xl sm:text-4xl font-black">Choose Your <span className="text-[#FFD400]">Ride</span></h2>
+        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {VEHICLES.map(v => (
+            <article key={v.id} className="bg-white text-[#111111] border-4 border-[#FFD400] flex flex-col">
+              <Pic src={v.img} alt={v.id} label={`Add photo: ${v.img}`} className="w-full aspect-[4/3]" />
+              <div className="p-4 flex flex-col flex-1">
+                <h3 className="font-black text-lg">{v.id}</h3>
+                {v.seats && <p className="text-sm font-bold bg-[#FFD400] inline-block px-2 mt-1 self-start">{v.seats}</p>}
+                <p className="text-sm text-[#6B7280] mt-2 flex-1">{v.desc}</p>
+                <button onClick={() => pick(null, v.id)} className={btnY + " mt-4 !py-2 text-sm"}>Enquire</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <section id="about" className="max-w-6xl mx-auto px-4 py-14 grid md:grid-cols-2 gap-8 items-center">
+      <div className="relative">
+        <Pic src="/images/sarvjit-singh.webp" alt={`Portrait of ${BIZ.owner}`} label="Add portrait: /images/sarvjit-singh.webp" className="w-full aspect-[4/5] border-4 border-[#111111]" />
+        <div className="absolute -bottom-4 right-2 bg-[#FFD400] border-4 border-[#111111] px-4 py-2 font-black shadow-[4px_4px_0_#111111]">{BIZ.years} Years of Experience</div>
+      </div>
+      <div>
+        <h2 className="text-3xl sm:text-4xl font-black">{BIZ.years} Years of Experience. A Journey Built on Trust.</h2>
+        <p className="mt-4 text-[#111111]/80">I’m {BIZ.owner}, proprietor of this taxi business in Jalandhar, Punjab. With {BIZ.years} years of experience, my focus is on providing customers with a dependable and straightforward taxi-booking experience for journeys from Jalandhar to Delhi, Amritsar, Chandigarh, and other destinations.</p>
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <a href={`tel:${BIZ.tel}`} className={btnY}><PhoneIcon />Call {BIZ.phone}</a>
+          <a href={`mailto:${BIZ.email}`} className={btnW}><MailIcon />Email</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Why() {
+  const items = ["Experienced proprietor", "Convenient outstation booking", "Multiple vehicle options", "Clear, upfront fare information", "Direct phone contact", "Simple enquiry process"];
+  return (
+    <section className="bg-[#FFD400] border-y-4 border-[#111111] py-14">
+      <div className="max-w-6xl mx-auto px-4">
+        <h2 className="text-3xl sm:text-4xl font-black">Why Choose Us</h2>
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map(t => (
+            <div key={t} className="bg-white border-4 border-[#111111] p-4 flex items-center gap-3 font-bold">
+              <span className="bg-[#111111] text-[#FFD400] p-1.5"><CheckIcon /></span>{t}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Faq() {
+  return (
+    <section id="faq" className="max-w-3xl mx-auto px-4 py-14">
+      <h2 className="text-3xl sm:text-4xl font-black mb-6">Frequently Asked Questions</h2>
+      <div className="space-y-3">
+        {FAQ.map(([q, a]) => (
+          <details key={q} className="bg-white border-2 border-[#111111] p-4 group">
+            <summary className="font-bold cursor-pointer list-none flex justify-between gap-3">{q}<span className="text-[#FFD400] bg-[#111111] px-2 group-open:rotate-45 transition">+</span></summary>
+            <p className="mt-3 text-[#111111]/80">{a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer id="contact" className="bg-[#080808] text-gray-300 border-t-4 border-[#FFD400]">
+      <div className="max-w-6xl mx-auto px-4 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div><Logo light /><p className="mt-3 text-sm">Outstation taxi enquiries from Jalandhar, Punjab, run by {BIZ.owner}.</p></div>
+        <div><h3 className="text-white font-bold mb-3">Quick links</h3><ul className="space-y-2 text-sm">{NAV.map(([l, h]) => <li key={h}><a href={h} className="hover:text-[#FFD400]">{l}</a></li>)}</ul></div>
+        <div><h3 className="text-white font-bold mb-3">Popular routes</h3><ul className="space-y-2 text-sm">{ROUTES.map(r => <li key={r.to}><a href="#routes" className="hover:text-[#FFD400]">Jalandhar to {r.to}</a></li>)}</ul></div>
+        <div>
+          <h3 className="text-white font-bold mb-3">Contact</h3>
+          <ul className="space-y-2 text-sm">
+            <li><a href={`tel:${BIZ.tel}`} className="flex items-center gap-2 hover:text-[#FFD400]"><PhoneIcon className="w-4 h-4" />{BIZ.phone}</a></li>
+            <li><a href={`mailto:${BIZ.email}`} className="flex items-center gap-2 hover:text-[#FFD400] break-all"><MailIcon className="w-4 h-4 shrink-0" />{BIZ.email}</a></li>
+            <li><a href={`https://wa.me/${BIZ.wa}`} className="hover:text-[#FFD400]">WhatsApp us</a></li>
+            <li className="flex items-center gap-2"><PinIcon className="w-4 h-4" />{BIZ.place}</li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-gray-800 text-xs py-4 px-4 text-center">© {new Date().getFullYear()} {BIZ.brand}. All rights reserved. · <a href="#" className="underline">Privacy Policy</a> · <a href="#" className="underline">Terms &amp; Conditions</a></div>
+    </footer>
+  );
+}
+
+function App() {
+  const [f, setF] = useState({ to: "Delhi", other: "", date: "", vehicle: "Sedan", pax: "1", name: "", phone: "", msg: "" });
+  const pick = (to, vehicle) => {
+    setF(p => ({ ...p, to: to || p.to, vehicle }));
+    document.getElementById("book").scrollIntoView({ behavior: "smooth" });
+  };
+  return (
+    <>
+      <Navbar /><Hero />
+      <BookingForm f={f} setF={setF} />
+      <Routes pick={pick} /><Fleet pick={pick} /><About /><Why /><Faq /><Footer />
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
