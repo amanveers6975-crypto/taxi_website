@@ -17,7 +17,7 @@ const { useState } = React;
 
 /* ===== EDIT YOUR DETAILS HERE ===== */
 const BIZ = {
-  brand: "[YOUR TAXI BRAND]",
+  brand: "7 Days Taxi Service",
   owner: "Sarvjit Singh",
   phone: "+91 9876430665",
   tel: "+919876430665",
@@ -25,20 +25,39 @@ const BIZ = {
   email: "sarvjitsj13@gmail.com",
   years: 25,
   place: "Jalandhar, Punjab, India",
-  sheetUrl: "https://script.google.com/macros/s/AKfycbzXwGqnIOlUJ-vQ---KgqpfjhYdI-8RoFwKxJGawvuj7oAQpu7xBxJsXYhmODuYdcEFwQ/exec", // paste your Google Apps Script Web App URL here
+  sheetUrl: "https://script.google.com/macros/s/AKfycbzXwGqnIOlUJ-vQ---KgqpfjhYdI-8RoFwKxJGawvuj7oAQpu7xBxJsXYhmODuYdcEFwQ/exec",
 };
+
+// All image paths are relative (./images/...) so they work from a folder, a double-click, or a subfolder on a host.
 const VEHICLES = [
-  { id: "Sedan", seats: "", desc: "A comfortable choice for small groups and couples travelling outstation.", img: "/images/fleet/sedan.webp" },
-  { id: "Maruti Suzuki Ertiga", seats: "", desc: "A roomier option for families and small groups with extra luggage.", img: "/images/fleet/ertiga.webp" },
-  { id: "Kia Carens", seats: "6+1 seater", desc: "A spacious ride for family trips and longer journeys.", img: "/images/fleet/kia-carens.webp" },
-  { id: "Toyota Innova Crysta", seats: "6+1 seater", desc: "A premium, comfortable ride for long outstation journeys.", img: "/images/fleet/innova-crysta.webp" },
+  { id: "Sedan", seats: "", desc: "A comfortable choice for small groups and couples travelling outstation.", img: "./images/2.jpeg" },
+  { id: "Maruti Suzuki Ertiga", seats: "", desc: "A roomier option for families and small groups with extra luggage.", img: "./images/1.jpeg" },
+  { id: "Kia Carens", seats: "6+1 seater", desc: "A spacious ride for family trips and longer journeys.", img: "./images/6.jpeg" },
+  { id: "Toyota Innova Crysta", seats: "6+1 seater", desc: "A premium, comfortable ride for long outstation journeys.", img: "./images/5.jpeg" },
 ];
+
 // One-way fares in ₹
 const ROUTES = [
-  { to: "Delhi", desc: "Outstation taxi from Jalandhar to Delhi.", fares: { "Sedan": 5500, "Maruti Suzuki Ertiga": 7000, "Kia Carens": 7000, "Toyota Innova Crysta": 8500 } },
-  { to: "Amritsar", desc: "Outstation taxi from Jalandhar to Amritsar.", fares: { "Sedan": 1800, "Maruti Suzuki Ertiga": 2500, "Kia Carens": 2500, "Toyota Innova Crysta": 3500 } },
-  { to: "Chandigarh", desc: "Outstation taxi from Jalandhar to Chandigarh.", fares: { "Sedan": 2500, "Maruti Suzuki Ertiga": 3000, "Kia Carens": 3000, "Toyota Innova Crysta": 3500 } },
+  {
+    to: "Delhi",
+    desc: "Outstation taxi from Jalandhar to Delhi.",
+    img: "./images/places/delhi.jpeg",
+    fares: { "Sedan": 5500, "Maruti Suzuki Ertiga": 7000, "Kia Carens": 7000, "Toyota Innova Crysta": 8500 },
+  },
+  {
+    to: "Amritsar",
+    desc: "Outstation taxi from Jalandhar to Amritsar.",
+    img: "./images/places/amritsar.jpeg",
+    fares: { "Sedan": 1800, "Maruti Suzuki Ertiga": 2500, "Kia Carens": 2500, "Toyota Innova Crysta": 3500 },
+  },
+  {
+    to: "Chandigarh",
+    desc: "Outstation taxi from Jalandhar to Chandigarh.",
+    img: "./images/places/chandigarh.jpeg",
+    fares: { "Sedan": 2500, "Maruti Suzuki Ertiga": 3000, "Kia Carens": 3000, "Toyota Innova Crysta": 3500 },
+  },
 ];
+
 const getFare = (to, v) => { const r = ROUTES.find(x => x.to === to); return r && r.fares[v] ? r.fares[v] : null; };
 const rs = n => "₹" + n.toLocaleString("en-IN");
 const fareText = (to, v) => { const f = getFare(to, v); return f ? rs(f) : "Contact for fare"; };
@@ -55,21 +74,28 @@ const Icon = ({ d, className = "w-5 h-5" }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
 );
 const CarIcon = p => <Icon {...p} d={<><path d="M5 17H3v-5l2-5h14l2 5v5h-2" /><circle cx="7.5" cy="17" r="2" /><circle cx="16.5" cy="17" r="2" /><path d="M3 12h18" /></>} />;
-const PhoneIcon = p => <Icon {...p} d={<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.800.7a2 2 0 0 1 1.700 2z" />} />;
+const PhoneIcon = p => <Icon {...p} d={<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />} />;
 const MailIcon = p => <Icon {...p} d={<><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></>} />;
 const PinIcon = p => <Icon {...p} d={<><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></>} />;
 const LockIcon = p => <Icon {...p} d={<><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>} />;
 const ImgIcon = p => <Icon {...p} d={<><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></>} />;
 const CheckIcon = p => <Icon {...p} d={<path d="M20 6 9 17l-5-5" />} />;
 
-// Image with yellow placeholder fallback
+// Image with automatic extension fallback (jpeg/jpg/png/webp, any case), then a yellow placeholder
+const ALL_EXTS = ["jpeg", "jpg", "png", "webp", "JPG", "JPEG", "PNG", "WEBP"];
 const Pic = ({ src, alt, label, className = "" }) => {
+  const m = src.match(/^(.*)\.([a-zA-Z]+)$/);
+  const base = m ? m[1] : src;
+  const first = m ? m[2] : "jpg";
+  const list = [first, ...ALL_EXTS.filter(e => e !== first)];
+  const [i, setI] = useState(0);
   const [bad, setBad] = useState(false);
+  const onError = () => (i < list.length - 1 ? setI(i + 1) : setBad(true));
   return bad ? (
     <div role="img" aria-label={alt} className={`flex flex-col items-center justify-center gap-2 bg-[#FFD400] text-[#111111] border-b-4 border-[#111111] ${className}`}>
       <ImgIcon className="w-10 h-10" /><span className="text-xs font-bold uppercase tracking-wide text-center px-2">{label}</span>
     </div>
-  ) : <img src={src} alt={alt} loading="lazy" onError={() => setBad(true)} className={`object-cover ${className}`} />;
+  ) : <img src={`${base}.${list[i]}`} alt={alt} loading="lazy" onError={onError} className={`object-cover ${className}`} />;
 };
 
 const btnY = "inline-flex items-center justify-center gap-2 bg-[#FFD400] text-[#111111] font-extrabold border-2 border-[#111111] px-5 py-3 shadow-[4px_4px_0_#111111] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-[#111111]";
@@ -119,7 +145,7 @@ function Hero() {
             <a href="#routes" className={btnW}>Explore Our Routes</a>
           </div>
         </div>
-        <Pic src="/images/hero-1.webp" alt="Taxi on the road near Jalandhar" label="Add hero photo: /images/hero-1.webp" className="w-full aspect-[4/3] border-4 border-[#FFD400]" />
+        <Pic src="./images/hero-1.webp" alt="Taxi on the road near Jalandhar" label="Add hero photo: ./images/hero-1.webp" className="w-full aspect-[4/3] border-4 border-[#FFD400]" />
       </div>
     </section>
   );
@@ -136,14 +162,14 @@ function BookingForm({ f, setF }) {
   const [fail, setFail] = useState(false);
   const set = (k, v) => setF({ ...f, [k]: v });
   const dest = f.to === "Other" ? (f.other || "Other destination") : f.to;
-  const fare = getFare(f.to, f.vehicle);
   const today = new Date().toISOString().split("T")[0];
+  const cleanPhone = p => p.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, "");
 
   const submit = async e => {
     e.preventDefault();
     const er = {};
     if (!f.name.trim()) er.name = "Please enter your name.";
-    if (!/^[6-9]\d{9}$/.test(f.phone.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, ""))) er.phone = "Enter a valid 10-digit Indian mobile number.";
+    if (!/^[6-9]\d{9}$/.test(cleanPhone(f.phone))) er.phone = "Enter a valid 10-digit Indian mobile number.";
     if (!f.date) er.date = "Please choose a travel date.";
     else if (f.date < today) er.date = "Date cannot be in the past.";
     if (f.to === "Other" && !f.other.trim()) er.other = "Please enter your destination.";
@@ -151,7 +177,7 @@ function BookingForm({ f, setF }) {
     if (Object.keys(er).length) return;
     const msg = [
       "Taxi enquiry",
-      `Name: ${f.name}`, `Mobile: +91 ${f.phone.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, "")}`,
+      `Name: ${f.name}`, `Mobile: +91 ${cleanPhone(f.phone)}`,
       `Pickup: ${BIZ.place}`, `Drop: ${dest}`, `Date: ${f.date}`, `Vehicle: ${f.vehicle}`,
       `Passengers: ${f.pax}`, `Displayed fare: ${fareText(f.to, f.vehicle)}`,
       f.msg ? `Notes: ${f.msg}` : "",
@@ -163,8 +189,7 @@ function BookingForm({ f, setF }) {
     }
     setBusy(true); setFail(false);
     try {
-      const clean = f.phone.replace(/[\s-]/g, "").replace(/^(\+91|91|0)/, "");
-      const res = await fetch(BIZ.sheetUrl, { method: "POST", body: JSON.stringify({ name: f.name, phone: "+91 " + clean, drop: dest, date: f.date, vehicle: f.vehicle, pax: f.pax, fare: fareText(f.to, f.vehicle), msg: f.msg }) });
+      const res = await fetch(BIZ.sheetUrl, { method: "POST", body: JSON.stringify({ name: f.name, phone: "+91 " + cleanPhone(f.phone), drop: dest, date: f.date, vehicle: f.vehicle, pax: f.pax, fare: fareText(f.to, f.vehicle), msg: f.msg }) });
       const j = await res.json();
       if (!j.ok) throw new Error("save failed");
       setDone(j.id);
@@ -177,7 +202,7 @@ function BookingForm({ f, setF }) {
     <section id="book" className="px-4 py-12 bg-[#FFD400] border-b-4 border-[#111111]">
       <div className="max-w-3xl mx-auto bg-white border-4 border-[#111111] shadow-[8px_8px_0_#111111] p-5 sm:p-8">
         <h2 className="text-3xl font-black">Taxi Enquiry</h2>
-        <p className="text-sm text-[#6B7280] mt-1">Send your details on WhatsApp and we’ll contact you. This is an enquiry, not a confirmed booking.</p>
+        <p className="text-sm text-[#6B7280] mt-1">Send your details and we’ll contact you. This is an enquiry, not a confirmed booking.</p>
         <form onSubmit={submit} noValidate className="mt-6 grid sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <Label id="pickup">Pickup location</Label>
@@ -252,7 +277,7 @@ function Routes({ pick }) {
       <div className="mt-8 grid md:grid-cols-3 gap-6">
         {ROUTES.map(r => (
           <article key={r.to} className="bg-white border-4 border-[#111111] shadow-[6px_6px_0_#111111] flex flex-col">
-            <Pic src={`/images/routes/${r.to.toLowerCase()}.webp`} alt={`Route from Jalandhar to ${r.to}`} label={`Add photo: /images/routes/${r.to.toLowerCase()}.webp`} className="w-full aspect-video" />
+            <Pic src={r.img} alt={`Jalandhar to ${r.to}`} label={`Image missing: ${r.to}`} className="w-full aspect-video" />
             <div className="p-5 flex flex-col flex-1">
               <h3 className="text-2xl font-black">Jalandhar → {r.to}</h3>
               <p className="text-sm text-[#6B7280] mt-1">{r.desc}</p>
@@ -261,7 +286,7 @@ function Routes({ pick }) {
                   <li key={v.id}>
                     <button onClick={() => pick(r.to, v.id)} className="w-full flex items-center justify-between py-2.5 text-left hover:bg-[#FFD400]/30 px-1">
                       <span className="text-sm font-semibold">{v.id}{v.seats ? <span className="text-[#6B7280] font-normal"> ({v.seats})</span> : null}</span>
-                      <span className="font-black">{rs(r.fares[v.id])}</span>
+                      <span className="font-black">{fareText(r.to, v.id)}</span>
                     </button>
                   </li>
                 ))}
@@ -303,7 +328,7 @@ function About() {
   return (
     <section id="about" className="max-w-6xl mx-auto px-4 py-14 grid md:grid-cols-2 gap-8 items-center">
       <div className="relative">
-        <Pic src="/images/sarvjit-singh.webp" alt={`Portrait of ${BIZ.owner}`} label="Add portrait: /images/sarvjit-singh.webp" className="w-full aspect-[4/5] border-4 border-[#111111]" />
+        <Pic src="./images/7.jpeg" alt={`Portrait of ${BIZ.owner}`} label="Add portrait: ./images/sarvjit-singh.webp" className="w-full aspect-[4/5] border-4 border-[#111111]" />
         <div className="absolute -bottom-4 right-2 bg-[#FFD400] border-4 border-[#111111] px-4 py-2 font-black shadow-[4px_4px_0_#111111]">{BIZ.years} Years of Experience</div>
       </div>
       <div>
